@@ -1,0 +1,1 @@
+-- Quanto tempo leva para um cliente voltar?
