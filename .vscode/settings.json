@@ -1,0 +1,10 @@
+{
+    "javascript.suggest.enabled": true,
+    "typescript.suggest.enabled": true,
+    "editor.acceptSuggestionOnCommitCharacter": false,
+    "editor.acceptSuggestionOnEnter": "on",
+    "editor.suggestOnTriggerCharacters": false,
+    "editor.parameterHints.enabled": false,
+    "editor.inlineSuggest.syntaxHighlightingEnabled": false,
+    "editor.inlineSuggest.edits.allowCodeShifting": "never"
+}
