@@ -1,35 +1,38 @@
 -- 8. Saldo de pontos acumulados de cada usuario.
 WITH tb_cliente_pontos AS (
     SELECT  
-            DISTINCT IdCliente,
+            IdCliente,
             substr(DtCriacao, 1, 10) AS dtDia,
-            count(QtdePontos) AS qtdePontos
+            sum(QtdePontos) AS totalPontos,
+            sum(CASE WHEN QtdePontos > 0 THEN QtdePontos ELSE 0 END) AS pontosPosit
 
     FROM transacoes
 
     GROUP BY IdCliente, dtDia
 
-    ORDER BY dtDia
 ),
 
-tb_ponto_acumulados AS (
+tb_saldos AS (
     SELECT  *,
-            sum (qtdePontos) OVER (
-                ORDER BY IdCliente, dtDia) AS qtdePontosAcum
+            sum(totalPontos) OVER (PARTITION BY IdCliente ORDER BY dtDia) AS saldoPontos,
+            sum(pontosPosit) OVER (PARTITION BY IdCliente ORDER BY dtDia) AS totalPontosPos
 
     FROM tb_cliente_pontos
 ),
 
-tb_rn_acumulado AS (
-    SELECT  IdCliente, 
-            qtdePontosAcum,
-            row_number () OVER (PARTITION BY IdCliente ORDER BY IdCliente, qtdePontosAcum DESC) AS ordenacao
+-- E, se mostrar quantos pontos já foi acumulado por cliente?
 
-    FROM tb_ponto_acumulados
+tb_rn AS (
+    SELECT  *, 
+            row_number() OVER (PARTITION BY IdCliente ORDER BY saldoPontos DESC) AS ordem
+
+    FROM tb_saldos
 )
 
-SELECT  * 
+SELECT * 
 
-FROM tb_rn_acumulado
+FROM tb_rn
 
-WHERE ordenacao = 1
+WHERE ordem = 1
+
+ORDER BY totalPontosPos DESC

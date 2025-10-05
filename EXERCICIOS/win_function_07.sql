@@ -1,50 +1,30 @@
 -- 7. Qual o dia da semana mais ativo de cada usuario?
 
-WITH tb_cliente_dia AS (
+WITH tb_cliente_diaSemana AS (
   
     SELECT 
-            DISTINCT IdCliente,
-            substr(DtCriacao, 1, 10) AS dtDia,
-            count(IdTransacao) AS qtdeTransacoes
+            IdCliente,
+            count(DISTINCT IdTransacao) AS qtdeTransacoes,
+            strftime('%w', substr(DtCriacao, 1, 10)) AS dtDiaSemana
 
     FROM transacoes
 
-    GROUP BY IdCliente, dtDia
+    GROUP BY IdCliente, dtDiaSemana
+
 ),
 
 tb_row_number AS (
+
     SELECT  *,
             row_number() OVER (
                 PARTITION BY IdCliente ORDER BY qtdeTransacoes DESC) AS ordem
 
-    FROM tb_cliente_dia
+    FROM tb_cliente_diaSemana
 
-),
-
-tb_mais_transacoesDia AS (
-    SELECT  
-            IdCliente,
-            dtDia,
-            ordem
-
-    FROM tb_row_number
-
-    WHERE ordem = 1
-),
-
-tb_diaSemana_maisTransacoes AS (
-    SELECT  IdCliente,
-            dtDia,
-            strftime('%w', dtDia) AS diaSemana,
-            ordem  
-
-    FROM tb_mais_transacoesDia
 )
 
-SELECT diaSemana,
-       count(IdCliente)
+SELECT * 
 
-FROM tb_diaSemana_maisTransacoes
+FROM tb_row_number
 
-GROUP BY diaSemana
-
+WHERE ordem = 1

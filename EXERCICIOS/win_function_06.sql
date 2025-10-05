@@ -6,12 +6,26 @@ WITH tb_cliente_dia AS (
             substr(DtCriacao, 1, 10) AS dtDia,
             count(DISTINCT IdCliente) AS qtdeClientes
 
-    FROM transacoes
+    FROM clientes
 
     GROUP BY dtDia
+),
+
+Tb_acum AS (
+    SELECT  *,
+            sum(qtdeClientes) OVER (ORDER BY dtDia) AS qtdeClienteAcum
+
+    FROM tb_cliente_dia
+
+    ORDER BY dtDia
 )
 
-SELECT  *,
-        sum(qtdeClientes) OVER (ORDER BY dtDia) AS qtdeClienteAcum
+-- Quando foi atingindo 3.000 clientes?
 
-FROM tb_cliente_dia
+SELECT *
+
+FROM Tb_acum
+
+WHERE qtdeClienteAcum >=3000
+
+LIMIT 1

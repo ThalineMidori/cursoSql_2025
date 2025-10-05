@@ -1,4 +1,4 @@
--- 5. Quantidade de transaçoes Acumuladas ao longo do tempo?
+-- 5. Quantidade de transaçoes Acumuladas ao longo do tempo(diário)?
 
 WITH tb_dia_transacoes AS (
     SELECT 
@@ -8,9 +8,26 @@ WITH tb_dia_transacoes AS (
     FROM transacoes
 
     GROUP BY dtDia
+    ORDER BY dtDia
+
+),
+
+tb_acumulado AS (
+    SELECT  *,
+            sum(transacoesDia) OVER (ORDER BY dtDia) AS qtdeTransacoesAcum
+
+    FROM tb_dia_transacoes
+
 )
 
-SELECT  *,
-        sum(transacoesDia) OVER (ORDER BY dtDia) AS qtdeTransacoesAcum
+-- Quando foi atingido 100.000 transações?
 
-FROM tb_dia_transacoes
+SELECT * 
+
+FROM tb_acumulado
+
+WHERE qtdeTransacoesAcum >= 100000
+
+ORDER BY qtdeTransacoesAcum
+
+LIMIT 1
